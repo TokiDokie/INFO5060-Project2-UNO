@@ -70,9 +70,9 @@ namespace QuiddlerLibrary
                 foreach (Card card in cardShoe)
                 {
                     // Number of cards available
-                    for (int j = 0; j < card.DeckCount; j++)
+                    for (int j = 0; j < 1; j++)
                     {
-                        cardsList.Add(card.Letter);
+                        cardsList.Add(card.CardValue);
                     }
                 }
                 
@@ -86,12 +86,12 @@ namespace QuiddlerLibrary
 
 
 
-        /** Method Name: NewPlayer()
-          * Purpose: Creates new Player obj immediately pops with CardsPerPlayer
-          * Accepts: Nothing
-          * Returns: IPlayer reference to the player obj
-          * OP: Toki
-          */
+    /** Method Name: NewPlayer()
+        * Purpose: Creates new Player obj immediately pops with CardsPerPlayer
+        * Accepts: Nothing
+        * Returns: IPlayer reference to the player obj
+        * OP: Toki
+        */
         IPlayer IDeck.NewPlayer()
         {
             IPlayer player = new Player(this);
@@ -114,7 +114,7 @@ namespace QuiddlerLibrary
             {
                 output+=$"{cardShoe[i].ToString(),10}";
                 //i+1 so it wont do a newline on the first iteration cause the first card to be on a line by it self 
-                if ((i+1) % 8 == 0)
+                if ((i+1) % 11 == 0)
                 {
                     output += "\n";
                 }
@@ -157,41 +157,61 @@ namespace QuiddlerLibrary
         {
             try
             {
-                // Clear the template
+            // Clear the template
                 cardShoe.Clear();
 
-                // Populate the template
-                cardShoe.Add(new Card("A", 10, 2));
-                cardShoe.Add(new Card("B", 2, 8));
-                cardShoe.Add(new Card("C", 2, 8));
-                cardShoe.Add(new Card("D", 4, 5));
-                cardShoe.Add(new Card("E", 12, 2));
-                cardShoe.Add(new Card("F", 2, 6));
-                cardShoe.Add(new Card("G", 4, 6));
-                cardShoe.Add(new Card("H", 2, 7));
-                cardShoe.Add(new Card("I", 8, 2));
-                cardShoe.Add(new Card("J", 2, 13));
-                cardShoe.Add(new Card("K", 2, 8));
-                cardShoe.Add(new Card("L", 4, 3));
-                cardShoe.Add(new Card("M", 2, 5));
-                cardShoe.Add(new Card("N", 6, 5));
-                cardShoe.Add(new Card("O", 8, 2));
-                cardShoe.Add(new Card("P", 2, 6));
-                cardShoe.Add(new Card("Q", 2, 15));
-                cardShoe.Add(new Card("R", 6, 5));
-                cardShoe.Add(new Card("S", 4, 3));
-                cardShoe.Add(new Card("T", 6, 3));
-                cardShoe.Add(new Card("U", 6, 4));
-                cardShoe.Add(new Card("V", 2, 11));
-                cardShoe.Add(new Card("W", 2, 10));
-                cardShoe.Add(new Card("X", 2, 12));
-                cardShoe.Add(new Card("Y", 4, 4));
-                cardShoe.Add(new Card("Z", 2, 14));
-                cardShoe.Add(new Card("CL", 2, 10));
-                cardShoe.Add(new Card("ER", 2, 7));
-                cardShoe.Add(new Card("IN", 2, 7));
-                cardShoe.Add(new Card("QU", 2, 9));
-                cardShoe.Add(new Card("TH", 2, 9));
+        // Populate the template
+
+            // Colour cards GREEN BLUE YELLOW RED # 1 - 9    Skip   Reverse 
+
+            // For each colour
+                for (int i = 0; i < 4; i++)
+                {
+                    string colour = "";
+                    int colourNum = i;
+                    
+                    switch(colourNum){
+                        case 0: colour = "Green"; break;
+                        case 1: colour = "Blue";  break;
+                        case 2: colour = "Yellow"; break;
+                        case 3: colour = "Red"; break;
+                    }
+
+                // 1-9
+                    for (int j = 0; j < 9; j++)
+                    {
+                        cardShoe.Add(new Card((j+1).ToString(), colour));
+                    }
+
+                // Skip
+                    cardShoe.Add(new Card("Skip", colour));
+
+                // Reverse
+                    cardShoe.Add(new Card("Reverse", colour));
+
+                }// END COLOUR for loop 
+
+            // BLACK cards (x4 +2)   (x2 +4)     (x2 swapColour)
+                string black = "Black";
+
+            // Pick up 2
+                for (int i = 0; i < 4; i++)
+                {
+                    cardShoe.Add(new Card("+2", black));
+                }
+
+            // Pick up 4
+                for (int i = 0; i < 2; i++)
+                {
+                    cardShoe.Add(new Card("+4", black));
+                }
+
+            // Swap Colour
+                for (int i = 0; i < 2; i++)
+                {
+                    cardShoe.Add(new Card("SwapColour", black));
+                }
+
             }
             catch (Exception ex)
             {

@@ -52,15 +52,6 @@ namespace QuiddlerLibrary
             playerDeck.cardsList.RemoveAt(0);
             playerHand.Add(drawnCard);
 
-            try
-            {
-                playerDeck.cardShoe.Find(card => card.Letter.Equals(drawnCard)).ReducePoint();
-            }
-            catch
-            {
-
-            }
-
 
             return drawnCard;
         }
@@ -169,10 +160,9 @@ namespace QuiddlerLibrary
             int totalPoints = 0;
             foreach (var letter in splitedCandidate)
             {
-                Card foundCard = playerDeck.cardShoe.Find(card => card.Letter.Equals(letter));
+                Card foundCard = playerDeck.cardShoe.Find(card => card.CardValue.Equals(letter));
                 //if some how a non card letter gets in
                 //this might error out, more testing needed
-                totalPoints += foundCard.PointValue;
             }
 
             return totalPoints;

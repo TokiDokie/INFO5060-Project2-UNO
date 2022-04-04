@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31729.503
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UNOLibrary", "QuiddlerLibrary\UNOLibrary.csproj", "{5CD11771-4AE5-415E-B727-6A2482BD06AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UNOLibrary", "UNOLibrary\UNOLibrary.csproj", "{5CD11771-4AE5-415E-B727-6A2482BD06AF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UNOConsoleClient", "QuiddlerConsoleClient\UNOConsoleClient.csproj", "{F2B0F4AF-5517-4057-BB5B-407D5C435DCC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UNOConsoleClient", "UNOConsoleClient\UNOConsoleClient.csproj", "{F2B0F4AF-5517-4057-BB5B-407D5C435DCC}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5CD11771-4AE5-415E-B727-6A2482BD06AF} = {5CD11771-4AE5-415E-B727-6A2482BD06AF}
 	EndProjectSection
