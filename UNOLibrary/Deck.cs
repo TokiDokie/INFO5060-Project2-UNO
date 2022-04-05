@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-namespace QuiddlerLibrary
+namespace UNOLibrary
 {
     /**
 	 * Class Name:Deck	
@@ -15,22 +15,21 @@ namespace QuiddlerLibrary
     */
     public class Deck : IDeck
     {
-        public string About => "Quiddler - INFO 5060 - Darrell Bryan & Riley Kipp \n -------------------------------------------------";
+        public string About => "UNO - INFO 5060 - (Group Members names go here) \n -------------------------------------------------";
 
-        public int CardCount => cardsList.Count();
+        public int CardCount => cardShoe.Count();
 
         //needs to throw "ArgumentOutOfRangeException" if out of range of 3 - 10
         public int CardsPerPlayer { get; set; }
 
 
-        public string TopDiscard => discardCard;
+        public Card TopDiscard => discardCard;
 
 
 
     // Internal
         internal List<Card> cardShoe = null;  // Will be the cards remaining 
-        internal List<string> cardsList = null; // This will be cards being drawn ( letter only )
-        internal string discardCard;       // Card the player must discard eachturn
+        internal Card discardCard;       // Card the player must discard eachturn
 
         //NEED TO CALL spellChecker.Quit() at some point
         internal Application spellChecker = new Application();
@@ -39,52 +38,17 @@ namespace QuiddlerLibrary
         public Deck()
         {
             cardShoe = new List<Card>();      // Creates the deck container
-            cardsList = new List<string>();  // creates the card container
+
             loadTemplate();
 
 
-            repopulate();                  // Method - repopulates the shoe of cards
+            // repopulate();                  // Method - repopulates the shoe of cards
 
 
             Shuffle();                    // Shuffles 
 
 
         }
-
-
-        /** Method Name: repopulate()
-          * Purpose: Repopulate the proper amount of cards to the shoe
-          * Accepts: Nothing
-          * Returns: Nothing
-          * OP: Toki
-          */
-
-        private void repopulate()
-        {
-            try
-            {
-                // Clean out the shoe
-                cardsList.Clear();
-
-
-                foreach (Card card in cardShoe)
-                {
-                    // Number of cards available
-                    for (int j = 0; j < 1; j++)
-                    {
-                        cardsList.Add(card.CardValue);
-                    }
-                }
-                
-                //Console.WriteLine("Deck Populated");
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        } // END OF repopulate() METHOD
-
-
 
     /** Method Name: NewPlayer()
         * Purpose: Creates new Player obj immediately pops with CardsPerPlayer
@@ -123,6 +87,8 @@ namespace QuiddlerLibrary
             return output;
         }
 
+       
+
 
         /** Method Name: Shuffle()
           * Purpose: Shuffles the deck to make each game random
@@ -137,7 +103,7 @@ namespace QuiddlerLibrary
 
                 // Randomize the cards collection
                 Random rng = new Random();
-                cardsList = cardsList.OrderBy(card => rng.Next()).ToList();
+                cardShoe = cardShoe.OrderBy(card => rng.Next()).ToList();
             }
             catch (Exception ex)
             {

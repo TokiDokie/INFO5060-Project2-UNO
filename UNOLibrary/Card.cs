@@ -1,14 +1,14 @@
 ﻿using System;
 
-namespace QuiddlerLibrary
+namespace UNOLibrary
 {
     /**
 	 * Class Name:Card	
-	 * Purpose: an internal class to hold card information 
+	 * Purpose: A public class to hold card information 
 	 * Coders: Riley and Darrell
 	 * Date: 2022 - 02 - 02
     */
-    internal class Card
+    public class Card
     {
         private string cardValue;
 
@@ -22,8 +22,7 @@ namespace QuiddlerLibrary
     // C'tor
         public Card(string cv, string cc)
         {
-            this.cardValue = cv;
-
+            this.cardValue = cv; 
             this.cardColour = cc;
         }
 
@@ -31,7 +30,7 @@ namespace QuiddlerLibrary
 
         public override string ToString() 
         {
-            return CardValue + "(" + CardColour + ") ";
+            return "("+CardColour+" " +CardValue+ ") ";
         }
 
     } // end of class

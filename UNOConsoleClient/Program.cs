@@ -1,28 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using QuiddlerLibrary;
+using UNOLibrary;
 
-namespace QuiddlerConsoleClient
+namespace UNOConsoleClient
 {
     /**
 	 * Class Name:Program	
-	 * Purpose: The client application to run Quiddler
-	 * Coders: Riley and Darrell
-	 * Date: 2022 - 02 - 02
+	 * Purpose: The client application to run UNO game
+	 * Coders: Riley - Toki (Darrell)
+	 * Date: 2022 - 04 - 05
     */
     class Program
     {
         static void Main(string[] args)
         {
             //Create Objects need to run program
-            IDeck quiddlerDeck = new Deck();
+            IDeck unoDeck = new Deck();
             List<IPlayer> playerList = new List<IPlayer>();
 
-            Console.WriteLine(quiddlerDeck.About);
+            Console.WriteLine(unoDeck.About);
 
-            Console.WriteLine($"\nDeck initialized with the following {quiddlerDeck.CardCount} cards...");
-            Console.WriteLine(quiddlerDeck.ToString());
+        // REMOVE BEFORE RELEASE
+        // This is just to see all cards added to list
+            Console.WriteLine($"\nDeck initialized with the following {unoDeck.CardCount} cards...");
+            Console.WriteLine(unoDeck.ToString());
 
             
             int totPlayers = 0; //variable to hold user input total players
@@ -46,6 +48,7 @@ namespace QuiddlerConsoleClient
                     noLetters = true;
             }
 
+          
 
             int cardsToDeal = 0; 
             noLetters = true; //reset bool gate to true
@@ -66,24 +69,24 @@ namespace QuiddlerConsoleClient
                     noLetters = true;
             }
             //set the deck cards per player too the user input cards to deal
-            quiddlerDeck.CardsPerPlayer = cardsToDeal;
+            unoDeck.CardsPerPlayer = cardsToDeal;
 
             Console.WriteLine("Initializing Players...\n");
 
             //create the players
             for (int i = 0; i < totPlayers; i++)
             {
-                playerList.Add(quiddlerDeck.NewPlayer());
+                playerList.Add(unoDeck.NewPlayer());
             }
             
             //print out how many players where dealt too
             Console.WriteLine($"Cards were dealt to {totPlayers} player(s).");
             //create the discard pile
             //by having player 1 (since there will always be one player) and have him draw and discard that card right away
-            string topDrawCard = playerList[0].DrawCard();
+            Card topDrawCard = playerList[0].DrawCard();
             playerList[0].Discard(topDrawCard);
             //print out what card was drawn
-            Console.WriteLine($"the top card which was '{topDrawCard}' was moved to the discard pile.");
+            Console.WriteLine($"the top card which was a '{unoDeck.TopDiscard.CardColour} {unoDeck.TopDiscard.CardValue}' was moved to the discard pile.");
 
             bool continueGame = true; // bool gate to see if players wants to continue
             while (continueGame)
@@ -93,95 +96,82 @@ namespace QuiddlerConsoleClient
                 {
                     //print out who turn it is and their points
                     Console.WriteLine("\n-----------");
-                    Console.WriteLine($"Player {turn+1} ({playerList[turn].TotalPoints})");
+                    Console.WriteLine($"Player {turn + 1}, Your move");
                     Console.WriteLine("-----------\n");
 
-                    //print out whats inside the deck currently
-                    Console.WriteLine($"The deck now contains the following {quiddlerDeck.CardCount}...");
-                    Console.WriteLine(quiddlerDeck.ToString());
 
-                    //print out player cards
-                    Console.WriteLine($"\nYour cards are [{playerList[turn].ToString()}]");
+              /**
+	            * Purpose: The area where the game is played
+	            * Coders: Toki (Darrell)
+	            * Date: 2022 - 04 - 05
+                */
+            #region Uno 
 
-                    //while loop for yes or no that only exits if they awnser either y or n
                     input = "";
-                    while (!input.Equals("y") && !input.Equals("n"))
+                    while (!input.Equals("p") && (!input.Equals("d")) )
                     {
-                        Console.Write($"Do you want the top card in the discard pile which is '{quiddlerDeck.TopDiscard}'? (y/n): ");
-                        input = Console.ReadLine();
-                        //make input lower so it doesnt matter what case they type in
-                        input = input.ToLower();
-                    }
-
-                    //if yes take top card from discard pile
-                    if (input.Equals("y"))
-                    {
-                        playerList[turn].PickupTopDiscard();
-                    }
-                    else
-                    {
-                        //if no then draw a card from the deck and print out what left in deck
-                        Console.WriteLine($"The dealer dealt '{playerList[turn].DrawCard()}' to you from the deck");
-                        Console.WriteLine($"The deck contains {quiddlerDeck.CardCount} cards.");
-                    }
-                    //show what cards the player has
-                    Console.WriteLine($"\nYour cards are [{playerList[turn].ToString()}]");
-
-                    //loop through until input is n
-                    //this will happen either the user saying no for testing a card or after the user plays cards successfully 
-                    input = "";
-                    while (!input.Equals("n"))
-                    {
-                        Console.Write("Test a word for its points value? (y/n): ");
-                        input = Console.ReadLine();
-                        input = input.ToLower();
-
-                        if (input.Equals("y"))
+                        //print out whats inside the deck currently
+                        Console.WriteLine($"The deck now contains {unoDeck.CardCount} cards left...");
+                        Console.WriteLine($"{unoDeck.CardCount} in deck...");
+                        for (int i = 0; i < totPlayers; i++)
                         {
-                            Console.Write($"Enter a word using [{playerList[turn].ToString()}] leaving a space between cards: ");
-                            string wordToPlay = Console.ReadLine();
+                            Console.WriteLine($"Player {i+1} has {playerList[i].CardCount} cards left.");
+                        }
 
-                            int pointValue = playerList[turn].TestWord(wordToPlay);
-                            Console.WriteLine($"The word [{wordToPlay}] is worth {pointValue} points.");
-                            if (pointValue > 0)
+                        Console.WriteLine("\n");
+
+                        Console.WriteLine($"The top card is a '{unoDeck.TopDiscard.CardColour} {unoDeck.TopDiscard.CardValue}'.");
+
+                        //print out player cards
+                        Console.WriteLine($"\nYour cards are [{playerList[turn].ToString()}]");
+
+                        //loop through until input is not P or D 
+                        //this will happen after the user plays cards successfully 
+                    
+                        Console.Write("(P)lay a card or (D)raw a card - (P/D): ");
+                        input = Console.ReadLine();
+                        input = input.ToLower();
+
+                        if (input.Equals("p"))
+                        {
+                            bool correctCardBool = false;
+                            while (!correctCardBool)
                             {
-                                
-                                input = "";
-                                while (!input.Equals("y") && !input.Equals("n"))
+                                Console.Write($"Enter a card using [{playerList[turn].ToString()}] leaving a space between values. Ex: Green 4 ");
+                                string cardToPlay = Console.ReadLine();
+
+                            // Check if card can be played
+
+                                if(playerList[turn].PlayWord(cardToPlay))
                                 {
-                                    Console.Write($"do you want to play the word [{wordToPlay}]? (y/n): ");
-                                    input = Console.ReadLine();
-                                    input = input.ToLower();
-                                }
-                                
-                                if (input.Equals("y"))
-                                {
-                                    
-                                    playerList[turn].PlayWord(wordToPlay);
-                                    Console.WriteLine($"Your cards are [{playerList[turn].ToString()}] and you have {playerList[turn].TotalPoints} points.");
-                                    input = "n";
+                                    Console.WriteLine("Card played");
+                                    correctCardBool = true;
                                 }
                                 else
                                 {
-                                    input = "";
+                                    Console.WriteLine($"The top card is a '{unoDeck.TopDiscard.CardColour} {unoDeck.TopDiscard.CardValue}'.");
+
+                                    //print out player cards
+                                    Console.WriteLine($"\nYour cards are [{playerList[turn].ToString()}]");
                                 }
                             }
-                        }
-                    }
 
-                    //loop through until user successfully removes a card
-                    bool cardRemoved = false;
-                    while (!cardRemoved)
-                    {
-                        Console.Write("Enter a card from your hand to drop on the discard pile: ");
-                        string cardToRemove = Console.ReadLine();
-                        if (playerList[turn].Discard(cardToRemove))
+
+                        }// END input.Equals("p")
+                        else if(input.Equals("d"))
                         {
-                            cardRemoved = true;
+                            playerList[turn].DrawCard();
                         }
-                    }
+                        else {
+                            input = "";
+                        }
+                    }//END LOOP P D
+
+                    
                     Console.WriteLine($"Your cards are [{playerList[turn].ToString()}]");
-                }
+                }// END while 
+
+            #endregion
 
                 input = "";
                 //while loop to see if players will want to end the game
@@ -216,15 +206,10 @@ namespace QuiddlerConsoleClient
 
             Console.WriteLine("Retiring the game.");
 
-            //print out every player and their total points
-            Console.WriteLine("The final scores are...");
-            for (int i = 0; i < playerList.Count; i++)
-            {
-               Console.WriteLine($"Player {i+1}: {playerList[i].TotalPoints} points");
+            // TODO: Check amount of cards each player has and declare a winner
+    
 
-            }
-
-            quiddlerDeck.Dispose();
+            unoDeck.Dispose();
         }
 
     }

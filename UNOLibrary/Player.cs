@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace QuiddlerLibrary
+namespace UNOLibrary
 {
     /**
-	 * Class Name:Player	
+	 * Class Name: Player	
 	 * Purpose: an class to that interacts with Deck object to play the game Quiddler 
 	 * Coders: Riley and Darrell
-	 * Date: 2022 - 02 - 02
+	 * Date: 2022 - 04 - 05
     */
     class Player : IPlayer
     {
@@ -18,9 +18,8 @@ namespace QuiddlerLibrary
 
         private Deck playerDeck = new Deck();
 
-        private int playerTotalPoints = 0;
 
-        private List<string> playerHand = new List<string>();
+        private List<Card> playerHand = new List<Card>();
 
         //constructor
         public Player(Deck d)
@@ -31,7 +30,6 @@ namespace QuiddlerLibrary
         //Interface Implementations
         public int CardCount => playerHand.Count;
 
-        public int TotalPoints => playerTotalPoints;
 
         /** Method Name: DrawCard()
         * Purpose: Draw a card from the deck and adds it too hand
@@ -40,18 +38,17 @@ namespace QuiddlerLibrary
         * OP: Riley
         */
         //NEED TO REDUCE THE CARD SHOE FOR ACCURATE DECK NUMBERS
-        public string DrawCard()
+        public Card DrawCard()
         {
-            if (playerDeck.cardsList.Count <= 0)
+
+            if (playerDeck.cardShoe.Count <= 0)
             {
                 throw new InvalidOperationException();
             }
 
-            //Card drawnCard = playerDeck.Draw();
-            string drawnCard = playerDeck.cardsList[0];
-            playerDeck.cardsList.RemoveAt(0);
+            Card drawnCard = playerDeck.cardShoe[0];
+            playerDeck.cardShoe.RemoveAt(0);
             playerHand.Add(drawnCard);
-
 
             return drawnCard;
         }
@@ -62,17 +59,16 @@ namespace QuiddlerLibrary
         * Returns: bool
         * OP: Riley
         */
-        public bool Discard(string card)
+        public bool Discard(Card card)
         {
-            string upperedCard = card.ToUpper();
             foreach (var cardInHand in playerHand)
             {
-                if (cardInHand.Equals(upperedCard))
+                if (cardInHand.Equals(card))
                 {
                     //ADD:
                     //DISCARD THE CARD INTO A DISCARD PILE
-                    playerDeck.discardCard = upperedCard;
-                    playerHand.Remove(upperedCard);
+                    playerDeck.discardCard = card;
+                    playerHand.Remove(card);
                     return true;
                 }
             }
@@ -80,92 +76,68 @@ namespace QuiddlerLibrary
             return false;
         }
 
-        /** Method Name: PickupTopDiscard()
-        * Purpose: Pickup the top card on discard pile
-        * Accepts: nothing
-        * Returns: string
-        * OP: Riley
-        */
-        public string PickupTopDiscard()
-        {
-            //will need deck to have a string disardCard
-            
-            string newCard = playerDeck.discardCard;
-            playerHand.Add(newCard);
-            playerDeck.discardCard = null;
-            return newCard;
-            
-        }
 
         /** Method Name: PlayWord()
-        * Purpose: play the players word
+        * Purpose: Checks to see if the card can be played 
         * Accepts: string: candidate
-        * Returns: int
-        * OP: Riley
+        * Returns: bool
+        * OP: Toki (Darrell)
         */
-        public int PlayWord(string candidate)
-        {
-            string upperCandidate = candidate.ToUpper();
-            int pointValue = TestWord(upperCandidate);
-            if (pointValue <= 0) return pointValue;
-
-            playerTotalPoints += pointValue;
-            string[] splitedCandidate = upperCandidate.Split(' ');
-
-            //loop through each card in splitedCandiate
-            //useing .Remove it should remove the first orrurrence of the letter
-            foreach (var card in splitedCandidate)
-            {
-                playerHand.Remove(card);
-            }
-            return pointValue;
-        }
-
-        /** Method Name: TestWord()
-        * Purpose: Test the player word
-        * Accepts: string: candidate
-        * Returns: int
-        * OP: Riley
-        */
-        public int TestWord(string candidate)
+        public bool PlayWord(string candidate)
         {
 
-            string upperCandidate = candidate.ToUpper();
-            string[] splitedCandidate = upperCandidate.Split(' ');
-            if (splitedCandidate.Length >= playerHand.Count) return 0;
-            foreach (string card in splitedCandidate)
-            {
-                if (!playerHand.Contains(card)) return 0;
-            }
-            string formatedCandidate = upperCandidate.Replace(" ", "");
-            formatedCandidate = formatedCandidate.ToLower();
-            if (!playerDeck.spellChecker.CheckSpelling(formatedCandidate))
-            {
-                return 0;
-            }
-            return GetWordValue((upperCandidate));
+            string[] splitedCardCandiadate = candidate.Split(' ');
 
-            
-        }
+            Card result = playerHand.Find(x => x.CardColour == splitedCardCandiadate[0]
+                                             && x.CardValue == splitedCardCandiadate[1]);
 
-        /** Method Name: GetWordValue()
-        * Purpose: Get the value of the word
-        * Accepts: string: candidate
-        * Returns: int
-        * OP: Riley
-        */
-        private int GetWordValue(string candidate)
-        {
-            string[] splitedCandidate = candidate.Split(' ');
-            int totalPoints = 0;
-            foreach (var letter in splitedCandidate)
+        // Safe Guard - check if player HAS CARD IN HAND
+            if (!playerHand.Contains(result)) return false;
+
+            // split the incoming candiadate card (ex Green 4) and check the top discard to
+            // see if it is able to be played
+
+        // If Able to play card
+            if (splitedCardCandiadate[0] == playerDeck.TopDiscard.CardColour ||
+                splitedCardCandiadate[1] == playerDeck.TopDiscard.CardValue ||
+                splitedCardCandiadate[0] == "Black")
             {
-                Card foundCard = playerDeck.cardShoe.Find(card => card.CardValue.Equals(letter));
-                //if some how a non card letter gets in
-                //this might error out, more testing needed
-            }
+            // Remove card from hand
+                playerHand.Remove(result);
 
-            return totalPoints;
+            // SET THE result to TOP DISCARD TO UPDATE PILE
+                playerDeck.discardCard = result;
+
+
+                // TODO: HAVE A BOOL TO HAVE A TRACKER OF TURN DIRECTION
+                //              DUE TO HAVING SWAP DIRECTION CARDS
+
+                // Do checks to see if card value is skip or reverse order
+
+
+
+            // Check if its Black
+                if(splitedCardCandiadate[0] == "Black")
+                {
+                    switch(splitedCardCandiadate[1])
+                    {
+                        case "+2":
+                            break;
+                        case "+4":
+                            break;
+                        case "SwapColour":
+                            break;
+                    }
+                }
+
+
+
+
+
+                return true;
+            }
+            else { return false; }
+
         }
 
         /** Method Name: ToString()
@@ -182,5 +154,6 @@ namespace QuiddlerLibrary
             return output;
 
         }
+
     }
 }
