@@ -23,6 +23,15 @@ namespace UNOLibrary
         public int CardsPerPlayer { get; set; }
 
 
+
+    // Checking order
+        public bool UNOBool { get; set; }                        // Sees if a player has only card remaining in hand
+        public bool NextTurnClockWise { get; set; } = true;     // If True: turn order moves (Clockwise) - turn 2 -> 3
+                                                                // If False: turn order moves (Counter Clockwise) - turn 2 -> 1
+        public bool NextTurnSkip { get; set; }                // Check to see if this turn gets skipped or not
+        public int NextTurnPickup { get; set; }               // Before turn stats check if next player needs to pickup if so pickup until this varaible is 0
+    //end of checking order
+
         public Card TopDiscard => discardCard;
 
 
@@ -32,7 +41,6 @@ namespace UNOLibrary
         internal Card discardCard;       // Card the player must discard eachturn
 
         //NEED TO CALL spellChecker.Quit() at some point
-        internal Application spellChecker = new Application();
 
         // C'tor 
         public Deck()
@@ -40,10 +48,6 @@ namespace UNOLibrary
             cardShoe = new List<Card>();      // Creates the deck container
 
             loadTemplate();
-
-
-            // repopulate();                  // Method - repopulates the shoe of cards
-
 
             Shuffle();                    // Shuffles 
 
@@ -128,7 +132,7 @@ namespace UNOLibrary
 
         // Populate the template
 
-            // Colour cards GREEN BLUE YELLOW RED # 1 - 9    Skip   Reverse 
+            // Colour cards GREEN BLUE YELLOW RED # 1 - 9    Skip   Reverse   +2
 
             // For each colour
                 for (int i = 0; i < 4; i++)
@@ -155,16 +159,16 @@ namespace UNOLibrary
                 // Reverse
                     cardShoe.Add(new Card("Reverse", colour));
 
+                // +2
+                    for (int j = 0; j < 2; j++)
+                    {
+                        cardShoe.Add(new Card("+2", colour));
+                    }
+
                 }// END COLOUR for loop 
 
-            // BLACK cards (x4 +2)   (x2 +4)     (x2 swapColour)
+            // BLACK cards   (x2 +4)     (x2 swapColour)
                 string black = "Black";
-
-            // Pick up 2
-                for (int i = 0; i < 4; i++)
-                {
-                    cardShoe.Add(new Card("+2", black));
-                }
 
             // Pick up 4
                 for (int i = 0; i < 2; i++)
@@ -185,16 +189,5 @@ namespace UNOLibrary
             }
         }
 
-
-        /** Method Name: Dispose()
-          * Purpose: Close the spell checker
-          * Accepts: Nothing    
-          * Returns: Nothing
-          * OP: Toki
-          */
-        public void Dispose()
-        {
-            spellChecker.Quit();
-        }
     }
 }

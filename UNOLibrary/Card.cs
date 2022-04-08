@@ -11,7 +11,6 @@ namespace UNOLibrary
     public class Card
     {
         private string cardValue;
-
         private string cardColour;
 
     // Accessor Methods

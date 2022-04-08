@@ -21,7 +21,7 @@ namespace UNOLibrary
         bool Discard(Card card);
 
     // Play a card
-        bool PlayWord(string candidate);
+        bool PlayCard(string candidate);
 
     // Test if it is possible to play a card
         //int TestWord(string candidate);

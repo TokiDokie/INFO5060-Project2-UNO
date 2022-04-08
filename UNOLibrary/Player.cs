@@ -17,8 +17,6 @@ namespace UNOLibrary
         //private SpellChecker spellChecker = new SpellChecker();
 
         private Deck playerDeck = new Deck();
-
-
         private List<Card> playerHand = new List<Card>();
 
         //constructor
@@ -77,63 +75,89 @@ namespace UNOLibrary
         }
 
 
-        /** Method Name: PlayWord()
+        /** Method Name: PlayCard()
         * Purpose: Checks to see if the card can be played 
         * Accepts: string: candidate
         * Returns: bool
-        * OP: Toki (Darrell)
+        * OP: Toki (Darrell) - Riley
         */
-        public bool PlayWord(string candidate)
+        public bool PlayCard(string candidate)
         {
+        // split the incoming candidate card (ex Green 4 or Black +4 Yellow) and check the top discard to
+        // see if it is able to be played
+            string[] splitedCardCandiadate = candidate.ToLower().Split(' ');
 
-            string[] splitedCardCandiadate = candidate.Split(' ');
-
-            Card result = playerHand.Find(x => x.CardColour == splitedCardCandiadate[0]
-                                             && x.CardValue == splitedCardCandiadate[1]);
+            Card result = playerHand.Find(x => x.CardColour.ToLower() == splitedCardCandiadate[0]
+                                             && x.CardValue.ToLower() == splitedCardCandiadate[1]);
 
         // Safe Guard - check if player HAS CARD IN HAND
             if (!playerHand.Contains(result)) return false;
 
-            // split the incoming candiadate card (ex Green 4) and check the top discard to
-            // see if it is able to be played
+
 
         // If Able to play card
-            if (splitedCardCandiadate[0] == playerDeck.TopDiscard.CardColour ||
-                splitedCardCandiadate[1] == playerDeck.TopDiscard.CardValue ||
-                splitedCardCandiadate[0] == "Black")
+            // != Black
+            if ((!splitedCardCandiadate[0].Equals("black")&&
+                 (splitedCardCandiadate[0].Equals(playerDeck.TopDiscard.CardColour.ToLower()) || splitedCardCandiadate[1].Equals(playerDeck.TopDiscard.CardValue.ToLower())) )
+            // == Black
+                || (splitedCardCandiadate[0].Equals("black") && splitedCardCandiadate.Length.Equals(3)) )
             {
             // Remove card from hand
                 playerHand.Remove(result);
 
+            // Checks to see if UNO should be called before the start of the next players turn
+                if (playerHand.Count.Equals(1))
+                {
+                    playerDeck.UNOBool = true;
+                }
+
             // SET THE result to TOP DISCARD TO UPDATE PILE
                 playerDeck.discardCard = result;
 
-
-                // TODO: HAVE A BOOL TO HAVE A TRACKER OF TURN DIRECTION
-                //              DUE TO HAVING SWAP DIRECTION CARDS
-
-                // Do checks to see if card value is skip or reverse order
-
-
-
-            // Check if its Black
-                if(splitedCardCandiadate[0] == "Black")
+            // Check if its a Reverse order
+                if (splitedCardCandiadate[1].Equals("reverse"))
                 {
-                    switch(splitedCardCandiadate[1])
+                    if (playerDeck.NextTurnClockWise)
                     {
-                        case "+2":
-                            break;
-                        case "+4":
-                            break;
-                        case "SwapColour":
-                            break;
+                        playerDeck.NextTurnClockWise = false;
                     }
+                    else { playerDeck.NextTurnClockWise = true; }
                 }
 
 
+            // Check if its a skip 
+                if (splitedCardCandiadate[1].Equals("skip"))
+                {
+                    playerDeck.NextTurnSkip = true;
+                }
+
+            // Check to see if its +2 
+                if (splitedCardCandiadate[1].Equals("+2"))
+                {
+                    playerDeck.NextTurnPickup += 2;
+                }
 
 
+            // Black Card Requirements
+               if (splitedCardCandiadate[0].Equals("black") && splitedCardCandiadate.Length.Equals(3) )
+               {
+                    // Check to see if its +4
+                    if (splitedCardCandiadate[1].Equals("+4")) 
+                    {
+                        playerDeck.NextTurnPickup += 4; 
+                    }
+                    switch (splitedCardCandiadate[2] )
+                    {
+                        case "green": playerDeck.TopDiscard.CardColour = "Green"; break;
+                        case "blue": playerDeck.TopDiscard.CardColour = "Blue"; break;
+                        case "yellow": playerDeck.TopDiscard.CardColour = "Yellow"; break;
+                        case "red": playerDeck.TopDiscard.CardColour = "Red"; break;
+                    }
+               }
+            // END Black Card Requirements
 
+            
+              
                 return true;
             }
             else { return false; }
