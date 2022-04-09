@@ -1,5 +1,5 @@
 ﻿/* File Name:       Program.cs
- * By:              Darian Benam
+ * By:              Darian Benam, Darrell Bryan, Jacob McMullin, and Riley Kipp
  * Date Created:    Tuesday, April 5, 2022
  * Brief:           Main entry point of the UNO Service Host program which acts as a server for
  *                  clients to connect to and play a game of UNO with others. */
@@ -20,6 +20,8 @@ namespace UNOServiceHost
             {
                 serviceHost = new ServiceHost(typeof(UnoGame));
                 serviceHost.Open();
+
+                Console.WriteLine("Service started succesfully!\n");
 
                 Console.Write("Press any key to shut down the service...");
                 Console.ReadKey();

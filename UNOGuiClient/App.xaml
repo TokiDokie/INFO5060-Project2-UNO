@@ -1,0 +1,83 @@
+﻿<Application x:Class="UNOGuiClient.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:UNOGuiClient"
+             StartupUri="Windows/MainWindow.xaml">
+    <Application.Resources>
+        <BitmapImage x:Key="UNO_Logo" UriSource="/Resources/UNO_Logo.png"/>
+        <BitmapImage x:Key="UNO_Window_Icon" UriSource="/Resources/uno_window_icon.ico"/>
+
+        <!-- BEGIN UNO CARD DEFINITIONS -->
+
+        <!-- Wild Cards -->
+
+        <BitmapImage x:Key="black_pickup_four_wild" UriSource="/Resources/black_pickup_four_wild.png"/>
+        <BitmapImage x:Key="black_wild" UriSource="/Resources/black_wild.png"/>
+
+        <!-- Blue Cards -->
+
+        <BitmapImage x:Key="blue_0" UriSource="/Resources/blue_0.png"/>
+        <BitmapImage x:Key="blue_1" UriSource="/Resources/blue_1.png"/>
+        <BitmapImage x:Key="blue_2" UriSource="/Resources/blue_2.png"/>
+        <BitmapImage x:Key="blue_3" UriSource="/Resources/blue_3.png"/>
+        <BitmapImage x:Key="blue_4" UriSource="/Resources/blue_4.png"/>
+        <BitmapImage x:Key="blue_5" UriSource="/Resources/blue_5.png"/>
+        <BitmapImage x:Key="blue_6" UriSource="/Resources/blue_6.png"/>
+        <BitmapImage x:Key="blue_7" UriSource="/Resources/blue_7.png"/>
+        <BitmapImage x:Key="blue_8" UriSource="/Resources/blue_8.png"/>
+        <BitmapImage x:Key="blue_9" UriSource="/Resources/blue_9.png"/>
+        <BitmapImage x:Key="blue_miss" UriSource="/Resources/blue_miss.png"/>
+        <BitmapImage x:Key="blue_pickup_two" UriSource="/Resources/blue_pickup_two.png"/>
+        <BitmapImage x:Key="blue_reverse" UriSource="/Resources/blue_reverse.png"/>
+
+        <!-- Green Cards -->
+
+        <BitmapImage x:Key="green_0" UriSource="/Resources/green_0.png"/>
+        <BitmapImage x:Key="green_1" UriSource="/Resources/green_1.png"/>
+        <BitmapImage x:Key="green_2" UriSource="/Resources/green_2.png"/>
+        <BitmapImage x:Key="green_3" UriSource="/Resources/green_3.png"/>
+        <BitmapImage x:Key="green_4" UriSource="/Resources/green_4.png"/>
+        <BitmapImage x:Key="green_5" UriSource="/Resources/green_5.png"/>
+        <BitmapImage x:Key="green_6" UriSource="/Resources/green_6.png"/>
+        <BitmapImage x:Key="green_7" UriSource="/Resources/green_7.png"/>
+        <BitmapImage x:Key="green_8" UriSource="/Resources/green_8.png"/>
+        <BitmapImage x:Key="green_9" UriSource="/Resources/green_9.png"/>
+        <BitmapImage x:Key="green_miss" UriSource="/Resources/green_miss.png"/>
+        <BitmapImage x:Key="green_pickup_two" UriSource="/Resources/green_pickup_two.png"/>
+        <BitmapImage x:Key="green_reverse" UriSource="/Resources/green_reverse.png"/>
+
+        <!-- Red Cards -->
+
+        <BitmapImage x:Key="red_0" UriSource="/Resources/red_0.png"/>
+        <BitmapImage x:Key="red_1" UriSource="/Resources/red_1.png"/>
+        <BitmapImage x:Key="red_2" UriSource="/Resources/red_2.png"/>
+        <BitmapImage x:Key="red_3" UriSource="/Resources/red_3.png"/>
+        <BitmapImage x:Key="red_4" UriSource="/Resources/red_4.png"/>
+        <BitmapImage x:Key="red_5" UriSource="/Resources/red_5.png"/>
+        <BitmapImage x:Key="red_6" UriSource="/Resources/red_6.png"/>
+        <BitmapImage x:Key="red_7" UriSource="/Resources/red_7.png"/>
+        <BitmapImage x:Key="red_8" UriSource="/Resources/red_8.png"/>
+        <BitmapImage x:Key="red_9" UriSource="/Resources/red_9.png"/>
+        <BitmapImage x:Key="red_miss" UriSource="/Resources/red_miss.png"/>
+        <BitmapImage x:Key="red_pickup_two" UriSource="/Resources/red_pickup_two.png"/>
+        <BitmapImage x:Key="red_reverse" UriSource="/Resources/red_reverse.png"/>
+        
+        <!-- Yellow Cards -->
+
+        <BitmapImage x:Key="yellow_0" UriSource="/Resources/yellow_0.png"/>
+        <BitmapImage x:Key="yellow_1" UriSource="/Resources/yellow_1.png"/>
+        <BitmapImage x:Key="yellow_2" UriSource="/Resources/yellow_2.png"/>
+        <BitmapImage x:Key="yellow_3" UriSource="/Resources/yellow_3.png"/>
+        <BitmapImage x:Key="yellow_4" UriSource="/Resources/yellow_4.png"/>
+        <BitmapImage x:Key="yellow_5" UriSource="/Resources/yellow_5.png"/>
+        <BitmapImage x:Key="yellow_6" UriSource="/Resources/yellow_6.png"/>
+        <BitmapImage x:Key="yellow_7" UriSource="/Resources/yellow_7.png"/>
+        <BitmapImage x:Key="yellow_8" UriSource="/Resources/yellow_8.png"/>
+        <BitmapImage x:Key="yellow_9" UriSource="/Resources/yellow_9.png"/>
+        <BitmapImage x:Key="yellow_miss" UriSource="/Resources/yellow_miss.png"/>
+        <BitmapImage x:Key="yellow_pickup_two" UriSource="/Resources/yellow_pickup_two.png"/>
+        <BitmapImage x:Key="yellow_reverse" UriSource="/Resources/yellow_reverse.png"/>
+
+        <!--  END UNO CARD DEFINITIONS  -->        
+    </Application.Resources>
+</Application>
