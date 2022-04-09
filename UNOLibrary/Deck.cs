@@ -1,31 +1,40 @@
-﻿using System;
+﻿/* File Name:       Deck.cs
+ * By:              Darian Benam, Darrell Bryan, Jacob McMullin, and Riley Kipp
+ * Date Created:    Tuesday, April 5, 2022
+ * Brief:           Non-generic class that represents a Uno deck, and an accessory to that deck in the form of 
+ *                  a discard pile. It also contains method for shuffling and generating a new uno deck. */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
 namespace UNOLibrary
 {
-    /**
-	 * Class Name:Deck	
-	 * Purpose: a Deck class that handles player creation and deck management
-	 * Coders: Darian Benam, Darrell Bryan, Jacob McMullin, and Riley Kipp
-	 * Date: 2022 - 04 - 07 
-    */
     [DataContract]
     public class Deck
     {
+        private static Random _rng;
+
         public int CardsPerPlayer { get; set; }
 
-    // Checking order
-        public bool CalledUno { get; set; }           // Sees if a player has only card remaining in hand
-        public bool NextTurnClockWise { get; set; }   // If True: turn order moves (Clockwise) - turn 2 -> 3
-                                                      // If False: turn order moves (Counter Clockwise) - turn 2 -> 1
-        public bool NextTurnSkip { get; set; }        // Check to see if this turn gets skipped or not
-        public int NextTurnPickup { get; set; }       // Before turn stats check if next player needs to pickup if so pickup until this varaible is 0
-        public string CurrentPlayColour { get; set; }    
-    // End of checking order
+        // Sees if a player has only card remaining in hand
+        public bool CalledUno { get; set; }
 
-        public List<Card> Cards { get; set; } = null; // Will be the cards remaining
+        // If True: turn order moves (Clockwise) - turn 2 -> 3
+        // If False: turn order moves (Counter Clockwise) - turn 2 -> 1
+        public bool NextTurnClockWise { get; set; }
+
+        // Check to see if this turn gets skipped or not
+        public bool NextTurnSkip { get; set; }
+
+        // Before turn stats check if next player needs to pickup if so pickup until this varaible is 0
+        public int NextTurnPickup { get; set; }
+
+        public string CurrentPlayColour { get; set; }
+
+        // Will be the cards remaining
+        public List<Card> Cards { get; set; } = null;
 
         [DataMember]
         public Stack<Card> DiscardPile = null;
@@ -43,10 +52,14 @@ namespace UNOLibrary
             }
         }
 
-        // C'tor 
         public Deck()
         {
-            Cards = new List<Card>();               // Creates the deck container
+            if (_rng is null)
+            {
+                _rng = new Random();
+            }
+
+            Cards = new List<Card>();
             DiscardPile = new Stack<Card>();
             NextTurnClockWise = true;
 
@@ -62,7 +75,10 @@ namespace UNOLibrary
         public void AddDiscard(Card card)
         {
             DiscardPile.Push(card);
-            CurrentPlayColour = card.CardColour;
+
+            if(card.CardColour != "black")
+                CurrentPlayColour = card.CardColour;
+
         }
 
         public Card DrawCard()
@@ -86,29 +102,6 @@ namespace UNOLibrary
             return topCard;
         }
 
-        /** Method Name: ToString()
-          * Purpose: Output the remaining cards
-          * Accepts: nothing
-          * Returns: string
-          * OP: Toki
-          */
-        public override string ToString()
-        {
-            string output = "";
-
-            for (int i = 0; i < Cards.Count; i++)
-            {
-                output += $"{Cards[i].ToString(),10}";
-                //i+1 so it wont do a newline on the first iteration cause the first card to be on a line by it self 
-                if ((i + 1) % 11 == 0)
-                {
-                    output += "\n";
-                }
-            }
-
-            return output;
-        }
-
         /** Method Name: Shuffle()
           * Purpose: Shuffles the deck to make each game random
           * Accepts: Nothing    
@@ -118,8 +111,7 @@ namespace UNOLibrary
         private void Shuffle()
         {
             // Randomize the cards collection
-            Random rng = new Random();
-            Cards = Cards.OrderBy(card => rng.Next()).ToList();
+            Cards = Cards.OrderBy(card => _rng.Next()).ToList();
         }
 
         /** Method Name: LoadTemplate()
@@ -152,9 +144,12 @@ namespace UNOLibrary
                 }
 
             // 1-9
-                for (int j = 0; j < 9; j++)
+                for (int h = 0; h < 2; h++)
                 {
-                    Cards.Add(new Card((j + 1).ToString(), colour));
+                    for (int j = 0; j < 9; j++)
+                    {
+                        Cards.Add(new Card(j.ToString(), colour));
+                    }
                 }
 
             // Skip
@@ -168,7 +163,6 @@ namespace UNOLibrary
                 {
                     Cards.Add(new Card("pickup_two", colour));
                 }
-
             }// END COLOUR for loop 
 
         // BLACK cards   (x2 +4)     (x2 swapColour)

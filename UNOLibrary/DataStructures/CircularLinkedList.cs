@@ -11,13 +11,27 @@ namespace UNOLibrary.DataStructures
 {
     public sealed class CircularLinkedList<T> : IEnumerable
     {
+        private List<CircularLinkedListNode<T>> _nodes = null;
         private CircularLinkedListNode<T> _currentNode = null;
 
-        private List<CircularLinkedListNode<T>> _nodes = null;
+        public CircularLinkedListNode<T> CurrentNode
+        {
+            get
+            {
+                // Initialize current node to head on first access
+                if (_currentNode is null)
+                {
+                    _currentNode = _nodes[0];
+                }
 
-        public int Length => _nodes is null ? 0 : _nodes.Count;
+                return _currentNode;
+            }
+            set => _currentNode = value;
+        }
 
-        public T CurrentNodeData => _currentNode.Data;
+        public int Length => _nodes is null
+            ? 0
+            : _nodes.Count;
 
         public CircularLinkedList()
         {
@@ -26,14 +40,8 @@ namespace UNOLibrary.DataStructures
 
         public T this[int index]
         {
-            get
-            {
-                return _nodes[index].Data;
-            }
-            set
-            {
-                _nodes[index].Data = value;
-            }
+            get => _nodes[index].Data;
+            set => _nodes[index].Data = value;
         }
 
         public void AddToEnd(T node)
@@ -64,21 +72,16 @@ namespace UNOLibrary.DataStructures
 
         public int MovePrevious()
         {
-            if (_nodes is null)
+            if (!(_nodes is null) && Length > 0)
             {
-                return -1;
-            }
-
-            if (Length > 0)
-            {
-                if (_currentNode is null)
+                if (CurrentNode is null)
                 {
-                    _currentNode = _nodes[0];
+                    CurrentNode = _nodes[0];
                 }
 
-                _currentNode = _currentNode.Previous;
+                CurrentNode = CurrentNode.Previous;
 
-                return _nodes.IndexOf(_currentNode);
+                return _nodes.IndexOf(CurrentNode);
             }
 
             return -1;
@@ -86,21 +89,11 @@ namespace UNOLibrary.DataStructures
 
         public int MoveNext()
         {
-            if (_nodes is null)
+            if (!(_nodes is null) && Length > 0)
             {
-                return -1;
-            }
+                CurrentNode = CurrentNode.Next;
 
-            if (Length > 0)
-            {
-                if (_currentNode is null)
-                {
-                    _currentNode = _nodes[0];
-                }
-
-                _currentNode = _currentNode.Next;
-
-                return _nodes.IndexOf(_currentNode);
+                return _nodes.IndexOf(CurrentNode);
             }
 
             return -1;
@@ -113,7 +106,7 @@ namespace UNOLibrary.DataStructures
                 return -1;
             }
             
-            return _nodes.IndexOf(_currentNode.Next);
+            return _nodes.IndexOf(CurrentNode.Next);
         }
 
         public int PeekMovePrevious()
@@ -123,7 +116,7 @@ namespace UNOLibrary.DataStructures
                 return -1;
             }
 
-            return _nodes.IndexOf(_currentNode.Previous);
+            return _nodes.IndexOf(CurrentNode.Previous);
         }
 
         public bool RemoveFirst(T nodeToRemove)
@@ -166,6 +159,12 @@ namespace UNOLibrary.DataStructures
             }
 
             return false;
+        }
+
+        public void Clear()
+        {
+            _nodes = null;
+            CurrentNode = null;
         }
 
         public List<T> ToList()

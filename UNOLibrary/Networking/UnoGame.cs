@@ -1,12 +1,14 @@
 ﻿/* File Name:       UnoGame.cs
  * By:              Darian Benam, Darrell Bryan, Jacob McMullin, and Riley Kipp
  * Date Created:    Tuesday, April 5, 2022
- * Brief:            */
+ * Brief:           Provides concrete implementations for IUNOGame interface, orchestrating the logic beind a game of UNOs
+ *                  and causing the updated state to be sent to connected players. */
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
+using System.Text;
 using UNOLibrary.DataStructures;
 using UNOLibrary.Networking.Entities;
 
@@ -37,7 +39,7 @@ namespace UNOLibrary.Networking
             _gameStarted = false;
         }
 
-        public int TryJoinGame(string username)
+        public int TryJoinLobby(string username)
         {
             ICallback invokerCb = OperationContext.Current.GetCallbackChannel<ICallback>();
 
@@ -45,6 +47,12 @@ namespace UNOLibrary.Networking
             if (_gameStarted)
             {
                 invokerCb.DisplayErrorMessage("Sorry, you can't join the lobby because a game has already been started!");
+                return -1;
+            }
+
+            if (_playerListCircular.Length >= MaxPlayers)
+            {
+                invokerCb.DisplayErrorMessage($"Sorry, you can't join the lobby because a lobby is full (max players allowed: {MaxPlayers})!");
                 return -1;
             }
 
@@ -59,22 +67,18 @@ namespace UNOLibrary.Networking
             _callbacks.Add(_nextClientId, invokerCb);
 
             Player joinedPlayer = new Player(_nextClientId, username);
-
-            //_playersList.Add(joinedPlayer);
             _playerListCircular.AddToEnd(joinedPlayer);
-
-            Console.WriteLine($"{username} joined - id: {_nextClientId}");
 
             return _nextClientId;
         }
 
         public void LeaveGame()
         {
-            ICallback cb = OperationContext.Current.GetCallbackChannel<ICallback>();
+            ICallback invokerCb = OperationContext.Current.GetCallbackChannel<ICallback>();
 
-            if (_callbacks.ContainsValue(cb))
+            if (_callbacks.ContainsValue(invokerCb))
             {
-                int callbackIndex = _callbacks.Values.ToList().IndexOf(cb);
+                int callbackIndex = _callbacks.Values.ToList().IndexOf(invokerCb);
                 int clientId = _callbacks.ElementAt(callbackIndex).Key;
                 Player playerToRemove = GetPlayerByClientId(clientId);
 
@@ -85,7 +89,22 @@ namespace UNOLibrary.Networking
                     _playerListCircular.RemoveFirst(playerToRemove);
                 }
 
-                UpdateWaitingList();
+                if (_gameStarted)
+                {
+                    UpdateAllSomeoneLeftGameInProgress(playerToRemove.Username);
+                }
+
+                if (_callbacks.Count > 0)
+                {
+                    UpdateWaitingList();
+                }
+                else // All players left, reset all variables
+                {
+                    _gameStarted = false;
+                    _nextClientId = 0;
+                    _gameState = null;
+                    _playerListCircular.Clear(); // This will reset current node and nodes to null
+                }
             }
         }
 
@@ -123,8 +142,17 @@ namespace UNOLibrary.Networking
         {
             _gameStarted = true;
 
+            int nodeIndex;
             int randomPlayerIndex = _random.Next(0, _playerListCircular.Length);
+
             Player initialTurnPlayer = _playerListCircular[randomPlayerIndex];
+
+            // Move the node pointer to the randomly selected player in the circular list
+            do
+            {
+                nodeIndex = _playerListCircular.MoveNext();
+            }
+            while (nodeIndex != randomPlayerIndex);
 
             // Initialize a new game state
             _gameState = new GameState(initialTurnPlayer.ClientId, new Deck(), _playerListCircular.ToList());
@@ -165,8 +193,19 @@ namespace UNOLibrary.Networking
             }
         }
 
+        private void UpdateAllSomeoneLeftGameInProgress(string username)
+        {
+            foreach (ICallback cb in _callbacks.Values)
+            {
+                cb.SomeoneLeftGameInProgress(username);
+            }
+        }
+
         public bool TryPlayCard(string card, string changeCardColour)
         {
+            string currentCol = _gameState.Deck.CurrentPlayColour;
+            bool beginDir = _gameState.Deck.NextTurnClockWise;
+            
             //find the player
             ICallback invokerCb = OperationContext.Current.GetCallbackChannel<ICallback>();
 
@@ -181,7 +220,22 @@ namespace UNOLibrary.Networking
                 Card triedCard = invokerPlayer.PlayerHand.FirstOrDefault(c => card == c.ToString());
 
                 bool validPlay = invokerPlayer.PlayCard(ref _gameState.Deck, triedCard.ToString(), changeCardColour);
-               
+                string newCol = _gameState.Deck.CurrentPlayColour;
+                bool newDir = _gameState.Deck.NextTurnClockWise;
+
+                if (currentCol != newCol)
+                {
+                    //message all players that the colour has changed
+                    _gameState.AddLogMessage($"{invokerPlayer.Username} has changed the colour to {newCol}!");
+                }
+                else if (triedCard.CardColour == "black") 
+                {
+                    _gameState.AddLogMessage($"{invokerPlayer.Username} decided to keep the colour as {newCol}!");
+                }
+
+                if(newDir != beginDir)
+                    _gameState.AddLogMessage($"{invokerPlayer.Username} has changed the direction!");
+
                 //update the game state AFTER the next turn has been figured out
                 if (validPlay)
                 {
@@ -190,13 +244,32 @@ namespace UNOLibrary.Networking
                     {
                         _gameState.AddLogMessage($"The UNO game been won by player {invokerPlayer.Username}!");
 
-                        return validPlay;
+                        List<Player> ranking = new List<Player>();
+
+                        ranking.AddRange(_playerListCircular.ToList());
+                        ranking.OrderBy(player => player.PlayerHand.Count);
+
+                        //send out a message to all clients showing them their ranks
+                        StringBuilder sb = new StringBuilder("\nThe following are the final ranks of each player:\n");
+                        int rank = 1;
+
+                        foreach (Player player in ranking)
+                        {
+                            sb.Append($"\n{rank++} - {player.Username}!");
+                        }
+
+                        _gameState.AddLogMessage(sb.ToString());
+
+                        //send the message to all clients to lock controls and idle on game end screen
+                        _gameState.GameEnded = true;
                     }
                     else
                     {
                         //if the player forgot to call uno
                         if (invokerPlayer.PlayerHand.Count == 1 && !invokerPlayer.CalledUno)
                         {
+                            _gameState.AddLogMessage($"{invokerPlayer.Username} Forgot to call UNO! Adding 2 cards.");
+                            
                             for (int i = 0; i < 2; i++)
                                 invokerPlayer.DrawCard(ref _gameState.Deck);
                         }
@@ -205,10 +278,9 @@ namespace UNOLibrary.Networking
 
                         //Use deck flags to figure out values for next turn
                         DetermineNextTurn();
-
-                        UpdateAllPlayersGameState();
                     }
-                    
+
+                    UpdateAllPlayersGameState();
                 }
 
                 return validPlay;
@@ -289,7 +361,7 @@ namespace UNOLibrary.Networking
             //reset the cards to add flag
             _gameState.Deck.NextTurnPickup = 0;
 
-            _gameState.AddLogMessage($"It's now {currPlayer.Username} turn!");
+            _gameState.AddLogMessage($"It's now {currPlayer.Username}'s turn!");
         }
 
         public void DrawCardAndEndTurn()
@@ -297,6 +369,21 @@ namespace UNOLibrary.Networking
             DrawCard(1);
             DetermineNextTurn();
             UpdateAllPlayersGameState();
+        }
+
+        public void CallUno()
+        {
+            ICallback invokerCb = OperationContext.Current.GetCallbackChannel<ICallback>();
+
+            if (_callbacks.ContainsValue(invokerCb))
+            {
+                int callbackIndex = _callbacks.Values.ToList().IndexOf(invokerCb);
+                int clientId = _callbacks.ElementAt(callbackIndex).Key;
+
+                Player invokerPlayer = GetPlayerByClientId(clientId);
+
+                invokerPlayer.CalledUno = true;
+            }
         }
     }
 }

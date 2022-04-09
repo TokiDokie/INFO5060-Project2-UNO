@@ -1,7 +1,7 @@
-﻿/* File Name:       GameWindow.xaml.cs
+﻿/* File Name:       UnoFaceValuePair.cs
  * By:              Darian Benam, Darrell Bryan, Jacob McMullin, and Riley Kipp
  * Date Created:    Tuesday, April 5, 2022
- * Brief:            */
+ * Brief:           Non-generic class which holds a Uno card's value and it's equivalent image file. */
 
 using System.Text;
 using System.Windows.Media;
@@ -12,7 +12,9 @@ namespace UNOGuiClient.Containers
     {
         public string CardValue { get; set; }
 
-        // Gets the card value without underscores and uppercases each word
+        public ImageSource CardFace { get; set; }
+
+        // Gets the card value without underscores and uppercases each word. This property is binded on the ListBox component
         public string GetFormattedCardValue
         {
             get
@@ -45,8 +47,6 @@ namespace UNOGuiClient.Containers
                 return "";
             }
         }
-
-        public ImageSource CardFace { get; set; }
 
         public UnoFaceValuePair(string cardValue, ImageSource cardFace)
         {

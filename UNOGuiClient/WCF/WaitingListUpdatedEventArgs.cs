@@ -1,7 +1,8 @@
 ﻿/* File Name:       WaitingListUpdatedEventArgs.cs
  * By:              Darian Benam, Darrell Bryan, Jacob McMullin, and Riley Kipp
  * Date Created:    Wednesday, April 6, 2022
- * Brief:           Insert brief here... */
+ * Brief:           Non-generic class which holds values received from the WCF server when the lobby waiting list is updated
+ *                  from either a client joining or leaving. */
 
 using System;
 using System.Collections.Generic;

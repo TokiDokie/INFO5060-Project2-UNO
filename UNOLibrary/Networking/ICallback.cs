@@ -20,6 +20,9 @@ namespace UNOLibrary.Networking
         void UpdateGameState(GameState gameState);
 
         [OperationContract(IsOneWay = true)]
+        void SomeoneLeftGameInProgress(string username);
+
+        [OperationContract(IsOneWay = true)]
         void DisplayErrorMessage(string errorMessage);
     }
 }

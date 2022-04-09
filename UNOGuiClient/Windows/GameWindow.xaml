@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UNOGuiClient.Windows"
         mc:Ignorable="d"
-        Title="UNO - Active Game" Height="550" Width="800" MinHeight="550" MinWidth="800">
+        Title="UNO - House Rules | Active Game" Height="550" Width="800" MinHeight="550" MinWidth="800">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="32"/>
@@ -68,10 +68,8 @@
             />
             <TextBox
                 x:Name="EventLogsTextBox"
-                TextWrapping="NoWrap"
-                Text="Logs will go here..."
+                TextWrapping="Wrap"
                 IsReadOnly="True"
-                HorizontalScrollBarVisibility="Visible"
                 VerticalScrollBarVisibility="Visible"
             />
         </DockPanel>
@@ -129,7 +127,7 @@
                 </ListBox.ItemTemplate>
             </ListBox>
             <StackPanel x:Name="ColourRadioButtonsContainer" Orientation="Horizontal" Grid.Row="2" Visibility="Hidden">
-                <RadioButton x:Name="BlueRadioButton" Content="Blue" Margin="0,0,16,0" Click="ColourRadioButton_Click"/>
+                <RadioButton x:Name="BlueRadioButton" Content="Blue" Margin="0,0,16,0" Click="ColourRadioButton_Click" IsChecked="True"/>
                 <RadioButton x:Name="GreenRadioButton" Content="Green" Margin="0,0,16,0" Click="ColourRadioButton_Click"/>
                 <RadioButton x:Name="RedRadioButton" Content="Red" Margin="0,0,16,0" Click="ColourRadioButton_Click"/>
                 <RadioButton x:Name="YellowRadioButton" Content="Yellow" Click="ColourRadioButton_Click"/>

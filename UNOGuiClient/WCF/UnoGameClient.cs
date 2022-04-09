@@ -1,7 +1,8 @@
 ﻿/* File Name:       UnoGameClient.cs
  * By:              Darian Benam, Darrell Bryan, Jacob McMullin, and Riley Kipp
  * Date Created:    Wednesday, April 6, 2022
- * Brief:           Insert brief here... */
+ * Brief:           Non-generic class which holds the client callback implementation for the WCF Uno Game. This class
+ *                  allows a client to connect to the server, subscribe to game events, and invoke methods on the server. */
 
 using System.ServiceModel;
 using UNOLibrary.Networking;
@@ -32,6 +33,9 @@ namespace UNOGuiClient.WCF
         public event ErrorOccurredEventHandler OnErrorOccurred;
         public delegate void ErrorOccurredEventHandler(string errorMessage);
 
+        public event SomeoneLeftGameInProgressEventHandler OnSomeoneLeftGameInProgress;
+        public delegate void SomeoneLeftGameInProgressEventHandler(string username);
+
         private UnoGameClient()
         {
             ClientId = -1;
@@ -59,7 +63,7 @@ namespace UNOGuiClient.WCF
         {
             if (!(_unoGame is null))
             {
-                int clientId = _unoGame.TryJoinGame(username);
+                int clientId = _unoGame.TryJoinLobby(username);
 
                 if (clientId != -1)
                 {
@@ -94,7 +98,7 @@ namespace UNOGuiClient.WCF
 
         public void CallUno()
         {
-            //_unoGame?.CallUno();
+            _unoGame?.CallUno();
         }
 
         public void DisplayErrorMessage(string errorMessage)
@@ -117,6 +121,11 @@ namespace UNOGuiClient.WCF
         public void UpdateGameState(GameState gameState)
         {
             OnGameStateUpdated?.Invoke(gameState);
+        }
+
+        public void SomeoneLeftGameInProgress(string username)
+        {
+            OnSomeoneLeftGameInProgress?.Invoke(username);
         }
     }
 }

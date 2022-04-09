@@ -16,19 +16,21 @@ namespace UNOServiceHost
         {
             ServiceHost serviceHost = null;
 
+            Console.WriteLine("Attempting to start the Uno game service...\n");
+
             try
             {
                 serviceHost = new ServiceHost(typeof(UnoGame));
                 serviceHost.Open();
 
-                Console.WriteLine("Service started succesfully!\n");
+                Console.WriteLine("Service started successfully!\n");
 
                 Console.Write("Press any key to shut down the service...");
                 Console.ReadKey();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("An exception was thrown: {0}", ex.Message);
+                Console.WriteLine("An exception was thrown while attempting to start the Uno Game service: {0}", ex.Message);
             }
             finally
             {

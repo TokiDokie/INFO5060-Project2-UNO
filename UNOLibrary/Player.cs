@@ -1,15 +1,15 @@
-﻿using System;
+﻿/* File Name:       Player.cs
+ * By:              Darian Benam, Darrell Bryan, Jacob McMullin, and Riley Kipp
+ * Date Created:    Tuesday, April 5, 2022
+ * Brief:           Non-generic class that contains data about about a player playing Uno. 
+ *                  Contains methods which allow a player to interact with the game. */
+
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace UNOLibrary
 {
-    /*
-	 * Class Name: Player	
-	 * Purpose: a class to that interacts with Deck object to play the game Uno
-	 * Coders:  Darian Benam, Darrell Bryan, Jacob McMullin, and Riley Kipp
-	 * Date: 2022 - 04 - 07 
-    */
     [DataContract]
     public class Player
     {
@@ -20,26 +20,24 @@ namespace UNOLibrary
         public string Username { get; private set; }
 
         [DataMember]
-        public List<Card> PlayerHand { get; private set; } = new List<Card>();
+        public List<Card> PlayerHand { get; private set; }
 
         [DataMember]
         public bool CalledUno { get; set; }
 
-
-        //constructor
         public Player(int clientId, string username)
         {
             ClientId = clientId;
             Username = username;
+            PlayerHand = new List<Card>();
         }
 
         /** Method Name: DrawCard()
-        * Purpose: Draw a card from the deck and adds it too hand
-        * Accepts: nothing
-        * Returns: string
-        * OP: Riley
-        */
-        //NEED TO REDUCE THE CARD SHOE FOR ACCURATE DECK NUMBERS
+         *  Purpose: Draw a card from the deck and adds it too hand
+         *  Accepts: nothing
+         *  Returns: string
+         *  OP: Darian, Darrell, Jacob, and Riley
+         */
         public Card DrawCard(ref Deck deck)
         {
             if (deck.Cards.Count <= 0)
@@ -55,12 +53,11 @@ namespace UNOLibrary
             return drawnCard;
         }
 
-
         /** Method Name: PlayCard()
-         * Purpose: Checks to see if the card can be played 
-         * Accepts: string: candidate
-         * Returns: bool
-         * OP: Darian, Jacob, Riley, Darrell
+         *  Purpose: Checks to see if the card can be played 
+         *  Accepts: string: candidate
+         *  Returns: bool
+         *  OP: Darian, Jacob, Riley, Darrell
          */
         public bool PlayCard(ref Deck deck, string candidate, string colourArg) // ... string colour) // Outside this method you'd pass List<string> ColourParams from state @ index 0
         {
@@ -72,19 +69,18 @@ namespace UNOLibrary
 
             if (splittedCardCandidate.Length > 2)
             {
-                if(splittedCardCandidate.Length == 3)
+                if (splittedCardCandidate.Length == 3)
                     result = PlayerHand.Find(x => x.CardColour.ToLower() == splittedCardCandidate[0]
-                                            && x.CardValue.ToLower() == splittedCardCandidate[1] + '_' + splittedCardCandidate[2]);
+                        && x.CardValue.ToLower() == splittedCardCandidate[1] + '_' + splittedCardCandidate[2]);
                 
                 if (splittedCardCandidate.Length == 4)
                     result = PlayerHand.Find(x => x.CardColour.ToLower() == splittedCardCandidate[0]
-                                            && x.CardValue.ToLower() == splittedCardCandidate[1] + '_' + splittedCardCandidate[2] + '_' + splittedCardCandidate[3]);
-
+                        && x.CardValue.ToLower() == splittedCardCandidate[1] + '_' + splittedCardCandidate[2] + '_' + splittedCardCandidate[3]);
             }
             else
             {
                 result = PlayerHand.Find(x => x.CardColour.ToLower() == splittedCardCandidate[0]
-                                             && x.CardValue.ToLower() == splittedCardCandidate[1]);
+                    && x.CardValue.ToLower() == splittedCardCandidate[1]);
             }
 
             // Safe Guard - check if player HAS CARD IN HAND
@@ -102,7 +98,6 @@ namespace UNOLibrary
 
                 if(cardModifer == "pickup")
                     deck.NextTurnPickup += 4;
-
 
                 PlayerHand.Remove(result);
                 deck.AddDiscard(result);
@@ -124,11 +119,7 @@ namespace UNOLibrary
                     // Check if its a Reverse order
                     if (splittedCardCandidate[1].Equals("reverse"))
                     {
-                        if (deck.NextTurnClockWise)
-                        {
-                            deck.NextTurnClockWise = false;
-                        }
-                        else { deck.NextTurnClockWise = true; }
+                        deck.NextTurnClockWise = !deck.NextTurnClockWise;
                     }
 
                     // Check if its a skip 
@@ -154,11 +145,11 @@ namespace UNOLibrary
         }
 
         /** Method Name: ToString()
-        * Purpose: Returns the current player's username.
-        * Accepts: nothing
-        * Returns: string
-        * OP: Darian and Riley
-        */
+         *  Purpose: Returns the current player's username.
+         *  Accepts: nothing
+         *  Returns: string
+         *  OP: Darian and Riley
+         */
         public override string ToString()
         {
             return Username;

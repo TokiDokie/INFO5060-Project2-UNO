@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UNOGuiClient.Windows"
         mc:Ignorable="d"
-        Title="UNO - Lobby" MinHeight="550" Height="550" Width="800" MinWidth="800">
+        Title="UNO - House Rules | Lobby" MinHeight="550" Height="550" Width="800" MinWidth="800">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="176"/>
@@ -27,12 +27,28 @@
             <RowDefinition Height="32"/>
         </Grid.RowDefinitions>
 
-        <Image
-            Source="{StaticResource UNO_Logo}"
-            RenderOptions.BitmapScalingMode="HighQuality"
-            Grid.Column="1"
-            Grid.Row="1"
-        />
+        <Grid Grid.Column="1" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Image
+                Source="{StaticResource UNO_Logo}"
+                RenderOptions.BitmapScalingMode="HighQuality"
+                Grid.Row="0"
+            />
+            <Border Background="#000" BorderThickness="0" CornerRadius="16" Margin="0,8,0,0" Grid.Row="1">
+                <Label
+                    FontSize="14"
+                    FontWeight="SemiBold"
+                    Content="House Rules"
+                    DockPanel.Dock="Bottom"
+                    HorizontalContentAlignment="Center"
+                    Padding="2"
+                    Foreground="#f8da27"
+                />
+            </Border>
+        </Grid>
 
         <Grid Grid.Column="1" Grid.Row="3" VerticalAlignment="Stretch">
             <Grid.RowDefinitions>

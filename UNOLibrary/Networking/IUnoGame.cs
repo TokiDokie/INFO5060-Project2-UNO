@@ -11,7 +11,7 @@ namespace UNOLibrary.Networking
     public interface IUnoGame
     {
         [OperationContract]
-        int TryJoinGame(string username); // TODO: Rename to TryJoinGame
+        int TryJoinLobby(string username);
 
         [OperationContract(IsOneWay = true)]
         void LeaveGame();
@@ -30,5 +30,8 @@ namespace UNOLibrary.Networking
 
         [OperationContract(IsOneWay = true)]
         void DrawCardAndEndTurn();
+
+        [OperationContract(IsOneWay = true)]
+        void CallUno();
     }
 }

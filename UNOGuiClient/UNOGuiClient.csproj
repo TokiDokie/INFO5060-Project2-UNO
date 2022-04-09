@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{9588F9AC-FFC7-4BE0-8BAC-D330A97F274B}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>UNOGuiClient</RootNamespace>
     <AssemblyName>UNOGuiClient</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
@@ -120,12 +120,6 @@
     <Resource Include="Resources\UNO_Logo.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\UNOLibrary\UNOLibrary.csproj">
-      <Project>{8f72e5ef-aeb6-4839-b44b-d6538db7287a}</Project>
-      <Name>UNOLibrary</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\black_wild.png" />
@@ -294,6 +288,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="uno_window_icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\UNOLibrary\UNOLibrary.csproj">
+      <Project>{8f72e5ef-aeb6-4839-b44b-d6538db7287a}</Project>
+      <Name>UNOLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -25,7 +25,7 @@ namespace UNOLibrary.Networking.Entities
         public List<(DateTime, string)> LogList { get; set; }
 
         [DataMember]
-        public List<string> ParamsForServer { get; set; }
+        public bool GameEnded { get; set; }
 
         public GameState(int currentClientIdTurn, Deck deck, List<Player> players)
         {
@@ -33,7 +33,6 @@ namespace UNOLibrary.Networking.Entities
             Deck = deck;
             Players = players;
             LogList = new List<(DateTime, string)>();
-            ParamsForServer = new List<string>();
         }
 
         public void AddLogMessage(string message)

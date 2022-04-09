@@ -1,7 +1,8 @@
 ﻿/* File Name:       GameWindow.xaml.cs
  * By:              Darian Benam, Darrell Bryan, Jacob McMullin, and Riley Kipp
  * Date Created:    Tuesday, April 5, 2022
- * Brief:            */
+ * Brief:           Window which encapsulates all logic for the player of an active UNO game. This window shows the state of the game sent
+ *                  by the server and allows to user to select cards and perform game moves. */
 
 using System;
 using System.ComponentModel;
@@ -19,6 +20,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Media.Imaging;
 using System.Windows.Controls;
 using UNOGuiClient.Containers;
+using System.Threading.Tasks;
 
 namespace UNOGuiClient.Windows
 {
@@ -42,7 +44,11 @@ namespace UNOGuiClient.Windows
             _mainWindow = mainWindow;
             _unoGameClient = UnoGameClient.GetInstance();
             _playerCardImages = new List<Bitmap>();
-            _changeCardColour = string.Empty;
+
+            // NOTE: This is "blue" because the blue colour radio button is checked by default (so if a player doesn't select
+            // anything, this is the default colour)
+            _changeCardColour = "blue"; //wik
+
             _currentSelectedCard = null;
 
             InitializeComponent();
@@ -58,6 +64,7 @@ namespace UNOGuiClient.Windows
         private void SubscribeToEvents()
         {
             _unoGameClient.OnGameStateUpdated += UnoGameClient_OnGameStateUpdated;
+            _unoGameClient.OnSomeoneLeftGameInProgress += UnoGameClient_OnSomeoneLeftGameInProgress;
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -72,53 +79,94 @@ namespace UNOGuiClient.Windows
             {
                 _gameState = gameState;
 
-                bool isMyTurn = _gameState.CurrentClientIdTurn == _unoGameClient.ClientId;
-
-                PlayCardButton.IsEnabled = false;
-                PickupCardButton.IsEnabled = isMyTurn;
-
-                PlayersHandListBox.Items.Clear();
-                ActivePlayersListBox.Items.Clear();
-
+                ColourRadioButtonsContainer.Visibility = Visibility.Hidden; // Force hide this in case someone selects a black card
                 EventLogsTextBox.Clear();
 
                 foreach ((DateTime timestamp, string log) in _gameState.LogList)
                 {
-                    EventLogsTextBox.AppendText($"[{timestamp}]: {log}");
+                    EventLogsTextBox.AppendText($"[{timestamp:HH:mm:ss tt}]: {log}\n");
                 }
 
-                Title = isMyTurn ? $"{_initialWindowTitle} [YOUR TURN]" : _initialWindowTitle;
-                YourTurnLabel.Visibility = isMyTurn ? Visibility.Visible : Visibility.Hidden;
+                EventLogsTextBox.ScrollToEnd();
 
-                Bitmap topDiscardBitmap = GetUnoCard(_gameState.Deck.TopDiscard.ToString());
-                TopCardImage.Source = ImageSourceFromBitmap(topDiscardBitmap);
-
-                foreach (Player player in _gameState.Players)
+                if (_gameState.GameEnded) // Game has been won, can only view scores or end session
                 {
-                    ActivePlayersListBox.Items.Add(string.Format("{0} {1} ({2} card(s) in hand)",
-                        player.ClientId == _gameState.CurrentClientIdTurn ? ">" : "",
-                        player,
-                        player.PlayerHand.Count));
+                    DisableUi();
                 }
-
-                Player myPlayer = gameState.Players.Find(player => player.ClientId == _unoGameClient.ClientId);
-
-                if (!(myPlayer is null))
+                else // Game is still ongoing
                 {
-                    // Show the players hand
+                    bool isMyTurn = _gameState.CurrentClientIdTurn == _unoGameClient.ClientId;
 
-                    foreach (Card card in myPlayer.PlayerHand)
+                    PlayCardButton.IsEnabled = false;
+                    PickupCardButton.IsEnabled = isMyTurn;
+
+                    PlayersHandListBox.Items.Clear();
+                    ActivePlayersListBox.Items.Clear(); //also wik
+
+                    Title = isMyTurn ? $"{_initialWindowTitle} [YOUR TURN]" : _initialWindowTitle;
+                    YourTurnLabel.Visibility = isMyTurn ? Visibility.Visible : Visibility.Hidden;
+
+                    Bitmap topDiscardBitmap = GetUnoCard(_gameState.Deck.TopDiscard.ToString());
+                    TopCardImage.Source = ImageSourceFromBitmap(topDiscardBitmap);
+
+                    foreach (Player player in _gameState.Players)
                     {
-                        ImageSource faceImageSource = ImageSourceFromBitmap(GetUnoCard(card.ToString()));
-                        UnoFaceValuePair unoFaceValuePair = new UnoFaceValuePair(card.ToString(), faceImageSource);
+                        ActivePlayersListBox.Items.Add(string.Format("{0} {1} ({2} card(s) in hand)",
+                            player.ClientId == _gameState.CurrentClientIdTurn ? ">" : "", // Show an arrow next to the username that has the current turn
+                            player,
+                            player.PlayerHand.Count));
+                    }
 
-                        PlayersHandListBox.Items.Add(unoFaceValuePair);
+                    Player myPlayer = gameState.Players.Find(player => player.ClientId == _unoGameClient.ClientId);
+
+                    if (!(myPlayer is null))
+                    {
+                        // Show the players hand
+
+                        foreach (Card card in myPlayer.PlayerHand)
+                        {
+                            ImageSource faceImageSource = ImageSourceFromBitmap(GetUnoCard(card.ToString()));
+                            UnoFaceValuePair unoFaceValuePair = new UnoFaceValuePair(card.ToString(), faceImageSource);
+
+                            PlayersHandListBox.Items.Add(unoFaceValuePair);
+                        }
+                    }
+
+                    foreach (var card in myPlayer.PlayerHand)
+                    {
+                        _playerCardImages.Add(GetUnoCard(card.ToString()));
+                    }
+
+                    // Try and bring the window to the front if it is the current player's turn
+                    if (isMyTurn)
+                    {
+                        Activate();
                     }
                 }
+            });
+        }
 
-                foreach (var card in myPlayer.PlayerHand)
+        private void UnoGameClient_OnSomeoneLeftGameInProgress(string username)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                try
                 {
-                    _playerCardImages.Add(GetUnoCard(card.ToString()));
+                    DisableUi(); // NOTE: This is incase the Application fails to force exit
+
+                    _unoGameClient.LeaveGame();
+
+                    MessageBox.Show(this,
+                        $"The player \"{username}\" has left the game! The game has forcefully ended.",
+                        "Game Forcefully Ended",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+
+                    Application.Current.Shutdown();
+                }
+                catch (Exception)
+                {
+                    // Do nothing
                 }
             });
         }
@@ -142,15 +190,21 @@ namespace UNOGuiClient.Windows
         {
             if (_currentSelectedCard is null)
             {
-                Console.WriteLine("Error in PlayCardButton_Click");
                 return;
             }
 
-            bool cardPlayed = _unoGameClient.TryPlayCard(_currentSelectedCard, _changeCardColour);
-
-            if (!cardPlayed)
+            try
             {
-                MessageBox.Show("That card cannot be played!", "Player Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                bool cardPlayed = _unoGameClient.TryPlayCard(_currentSelectedCard, _changeCardColour);
+
+                if (!cardPlayed)
+                {
+                    MessageBox.Show("That card cannot be played!", "Player Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while attempting to play the card: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -162,12 +216,31 @@ namespace UNOGuiClient.Windows
                 return;
             }
 
-            _unoGameClient.PickUpCard();
+            try
+            {
+                _unoGameClient.PickUpCard();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while attempting to pickup a card: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private void CallUnoButton_Click(object sender, RoutedEventArgs e)
         {
-            _unoGameClient.CallUno();
+            try
+            {
+                _unoGameClient.CallUno();
+
+                Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show(this, "You called UNO!", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while attempting to call UNO: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private void ColourRadioButton_Click(object sender, RoutedEventArgs e)
@@ -191,6 +264,14 @@ namespace UNOGuiClient.Windows
             return (Bitmap)resourceManager.GetObject(cardString);
         }
 
+        private void DisableUi()
+        {
+            PlayCardButton.IsEnabled = false;
+            PickupCardButton.IsEnabled = false;
+            CallUnoButton.IsEnabled = false;
+            PlayersHandListBox.IsEnabled = false;
+        }
+
         #endregion
 
         #region Unmanaged Code
@@ -205,6 +286,8 @@ namespace UNOGuiClient.Windows
 
         public ImageSource ImageSourceFromBitmap(Bitmap bmp)
         {
+            // NOTE: If a bitmap is null, GetHbitmap() will throw an exception. Therefore, to avoid the program crashing, just return
+            //       null.
             if (bmp is null)
             {
                 return null;

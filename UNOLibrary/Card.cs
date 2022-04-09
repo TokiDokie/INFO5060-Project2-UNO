@@ -1,15 +1,14 @@
-﻿using System.Runtime.Serialization;
+﻿/* File Name:       Card.cs
+ * By:              Darian Benam, Darrell Bryan, Jacob McMullin, and Riley Kipp
+ * Date Created:    Tuesday, April 5, 2022
+ * Brief:           Non-generic class that represents a Card in a Uno deck. */
+
+using System.Runtime.Serialization;
 
 namespace UNOLibrary
 {
-    /*
-	 * Class Name:Card	
-	 * Purpose: A public class to hold card information 
-	 * Coders: Darian Benam, Darrell Bryan, Jacob McMullin, and Riley Kipp
-	 * Date: 2022 - 02 - 02
-    */
-    [DataContract] // Attributes
-    public class Card // Start of class
+    [DataContract]
+    public class Card
     {
     // Accessor Methods
 
@@ -34,8 +33,7 @@ namespace UNOLibrary
         *   OP: Darian Benam and Jacob McMullin */
         public override string ToString() 
         {
-            var cheese = CardColour + '_' + CardValue;
-            return (string)cheese;
+            return CardColour + '_' + CardValue;
         }
     } // end of class
 }

@@ -1,7 +1,10 @@
 ﻿/* File Name:       MainWindow.xaml.cs
  * By:              Darian Benam, Darrell Bryan, Jacob McMullin, and Riley Kipp
  * Date Created:    Tuesday, April 5, 2022
- * Brief:            */
+ * Brief:           Main window which is the first window that appears when the program first launches. This window
+ *                  allows clients to join the Uno Game's lobby and see other clients in the lobby. When the minimum
+ *                  player count is reached, any player can press the "Start Game" button which will start the game on
+ *                  a new window. Once a game has started, no new players can join the lobby. */
 
 using System;
 using System.ComponentModel;
@@ -14,6 +17,7 @@ namespace UNOGuiClient.Windows
     public partial class MainWindow : Window
     {
         UnoGameClient _gameClientInstance;
+        GameWindow _gameWindow;
 
         public MainWindow()
         {
@@ -37,7 +41,7 @@ namespace UNOGuiClient.Windows
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            if (_gameClientInstance.ClientId != -1)
+            if (_gameClientInstance.ClientId != -1 && _gameWindow is null)
             {
                 MessageBoxResult dialogResult = MessageBox.Show("Are you sure you want to close the window? You are currently connected to the lobby.",
                     "Confirmation",
@@ -47,12 +51,11 @@ namespace UNOGuiClient.Windows
                 if (dialogResult == MessageBoxResult.No)
                 {
                     e.Cancel = true;
-                }
-                else
-                {
-                    _gameClientInstance.LeaveGame();
+                    return;
                 }
             }
+
+            _gameClientInstance.LeaveGame();
         }
 
         private void SubscribeToEvents()
@@ -66,15 +69,17 @@ namespace UNOGuiClient.Windows
         {
             Dispatcher.Invoke(() =>
             {
-                GameWindow gameWindow = new GameWindow(this, UsernameTextBox.Text);
+                _gameWindow = new GameWindow(this, UsernameTextBox.Text);
 
                 Hide();
-                gameWindow.Show();
+                _gameWindow.Show();
             });
         }
 
         private void UnoGameClient_OnWaitingPlayersUpdated(WaitingListUpdatedEventArgs args)
         {
+            // NOTE: Using Dispatcher.Invoke() because the events fired by the UnoGameClient are invoked on a seperate thread.
+            //       The code below prevents the app from freezing or throwing a runtime exception.
             Dispatcher.Invoke(() =>
             {
                 int waitingForTotal = args.MinPlayers - args.Players.Count;
@@ -115,7 +120,7 @@ namespace UNOGuiClient.Windows
             Dispatcher.Invoke(() =>
             {
                 // Use Task.Run so that the message box does not block the main thread
-                Task.Run(() =>
+                _ = Task.Run(() =>
                 {
                     MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 });
@@ -126,12 +131,14 @@ namespace UNOGuiClient.Windows
 
         private void JoinGameLobbyButton_Click(object sender, RoutedEventArgs e)
         {
-            UnoGameClient unoGameClient = UnoGameClient.GetInstance();
-            bool joinSuccess = unoGameClient.JoinGame(UsernameTextBox.Text);
-
-            if (!joinSuccess)
+            try
             {
-                MessageBox.Show("Failed to join the lobby!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                UnoGameClient unoGameClient = UnoGameClient.GetInstance();
+                _ = unoGameClient.JoinGame(UsernameTextBox.Text);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while attempting to join the game lobby: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -143,7 +150,7 @@ namespace UNOGuiClient.Windows
             }
             catch (Exception ex)
             {
-
+                MessageBox.Show($"An error occurred while attempting to start the game: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
